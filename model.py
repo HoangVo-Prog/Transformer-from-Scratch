@@ -6,10 +6,11 @@ import torch.nn as nn
 from utils import *
 from attention import MultiHeadAttention
 from config import *
+from Data.data import load_data_loaders
 
 
 def make_model(
-    src_vocab, tgt_vocab, N=6, d_model=512, d_ff=2048, h=8, dropout=0.1
+    src_vocab, tgt_vocab, N=N, d_model=D_MODEL, d_ff=D_FF, h=N_HEAD, dropout=DROPOUT
 ):
     "Helper: Construct a model from hyperparameters."
     c = copy.deepcopy
@@ -32,3 +33,10 @@ def make_model(
     return model
 
 
+_, _, _, en_tokenizer, vi_tokenizer = load_data_loaders()
+VOCAB_SIZE = len(en_tokenizer.get_vocab())  
+OUTPUT_DIM = len(vi_tokenizer.get_vocab())  
+
+
+model = make_model(VOCAB_SIZE, OUTPUT_DIM)
+print(model)

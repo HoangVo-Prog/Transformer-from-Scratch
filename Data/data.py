@@ -14,9 +14,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import MAX_LENGTH, BATCH_SIZE, sos_token, eos_token, pad_token, unk_token, special_tokens
 
 
-VOCAB_SIZE, OUTPUT_DIM = 0, 0
-
-
 # Load the dataset from Hugging Face
 def save_data(train_data, valid_data, test_data, filename='dataset.pkl'):
     with open(filename, 'wb') as f:
@@ -46,10 +43,7 @@ def bytepair_tokenize(train_data):
     vi_trainer = BpeTrainer(special_tokens=special_tokens)
     vi_tokenizer.train_from_iterator(train_data["vi"], trainer=vi_trainer)
     
-    def get_vocab_size_output_dim(src_tokenizer, trg_tokenizer):
-        return len(src_tokenizer.get_vocab()), len(trg_tokenizer.get_vocab())
-    
-    return en_tokenizer, vi_tokenizer, get_vocab_size_output_dim(en_tokenizer, vi_tokenizer)
+    return en_tokenizer, vi_tokenizer
 
 
 def tokenize(data, tokenizer, max_length=MAX_LENGTH):
@@ -83,10 +77,8 @@ def get_data_loader(dataset, batch_size, shuffle=False):
     return torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
 
-def data_loader(): 
-    global VOCAB_SIZE, OUTPUT_DIM, train_data, valid_data, test_data
-    
-    en_tokenizer, vi_tokenizer, (VOCAB_SIZE, OUTPUT_DIM) = bytepair_tokenize(train_data)
+def data_loader():     
+    en_tokenizer, vi_tokenizer = bytepair_tokenize(train_data)
     
     train_data = train_data.map(lambda x: tokenize_and_numericalize(x, en_tokenizer, vi_tokenizer))
     valid_data = valid_data.map(lambda x: tokenize_and_numericalize(x, en_tokenizer, vi_tokenizer))

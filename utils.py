@@ -1,6 +1,7 @@
 import torch
+import math
 import torch.nn as nn
-from Data.data import load_data_loaders, VOCAB_SIZE, OUTPUT_DIM, train_data, valid_data, test_data
+from Data.data import load_data_loaders, train_data, valid_data, test_data
 from config import *
 from torch.nn import functional as F
 
@@ -47,10 +48,9 @@ class EncoderDecoder(nn.Module):
         return (trg != pad_token).unsqueeze(-2)
     
 
-class Clone:
-    def call(self, model, N):
-        "Produce N identical layers."
-        return nn.ModuleList([model for _ in range(N)])
+def Clone(model, N):
+    "Produce N identical layers."
+    return nn.ModuleList([model for _ in range(N)])
 
 
 class LayerNorm(nn.Module):
@@ -115,6 +115,7 @@ class Decoder(nn.Module):
             x = layer(x, memory, src_mask, tgt_mask)
         return self.norm(x)
     
+    
 class DecoderLayer(nn.Module):
     def __init__(self, size, self_attn, src_attn, feed_forward, dropout):
         super(DecoderLayer, self).__init__()
@@ -129,6 +130,7 @@ class DecoderLayer(nn.Module):
         x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, tgt_mask))
         x = self.sublayer[1](x, lambda x: self.src_attn(x, m, m, src_mask))
         return self.sublayer[2](x, self.feed_forward)
+   
     
 class SubsequentMask:
     def call(self, size):
@@ -190,12 +192,13 @@ class PositionalEmbedding(nn.Module):
     
     
 class Embeddings(nn.Module):
-    def __init__(self, vocab_size, embedding_dim):
-        
+    def __init__(self, d_model, vocab):
         super(Embeddings, self).__init__()
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        self.lut = nn.Embedding(vocab, d_model)
+        self.d_model = d_model
 
     def forward(self, x):
-        return self.embedding(x) * (self.embedding_dim ** 0.5)
-    
+        return self.lut(x) * (self.d_model ** 0.5)
+
+
     
