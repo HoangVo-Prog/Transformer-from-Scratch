@@ -8,6 +8,8 @@ from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.trainers import BpeTrainer
 import sys
 import os
+
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import MAX_LENGTH, BATCH_SIZE, sos_token, eos_token, pad_token, unk_token, special_tokens
 
@@ -124,7 +126,7 @@ def load_data_loaders():
 
 
 if __name__ == "__main__":
-    # Load the dataset from Hugging Face
+    # # Load the dataset from Hugging Face
     # print("Loading dataset...")
     # ds = load_dataset("thainq107/iwslt2015-en-vi")
     
@@ -132,6 +134,7 @@ if __name__ == "__main__":
     # save_data(train_data, valid_data, test_data)
     
     
-    print("Saving dataloaders & tokenizers...")
-    train_loader, valid_loader, test_loader, en_tokenizer, vi_tokenizer = data_loader()
-    save_data_loaders(train_loader, valid_loader, test_loader, en_tokenizer, vi_tokenizer)
+    # print("Saving dataloaders & tokenizers...")
+    # train_loader, valid_loader, test_loader, en_tokenizer, vi_tokenizer = data_loader()
+    # save_data_loaders(train_loader, valid_loader, test_loader, en_tokenizer, vi_tokenizer)
+    pass

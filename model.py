@@ -1,32 +1,34 @@
+import copy
+
 import torch
 import torch.nn as nn
-from Data.data import load_data_loaders, VOCAB_SIZE, OUTPUT_DIM, train_data, valid_data, test_data
+
+from utils import *
+from attention import MultiHeadAttention
 from config import *
 
 
-class EmbeddingModel(nn.Module):
-    def __init__(self, vocab_size, embedding_dim):
-        
-        super(EmbeddingModel, self).__init__()
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+def make_model(
+    src_vocab, tgt_vocab, N=6, d_model=512, d_ff=2048, h=8, dropout=0.1
+):
+    "Helper: Construct a model from hyperparameters."
+    c = copy.deepcopy
+    attn = MultiHeadAttention(h, d_model)
+    ff = PositionwiseFeedForward(d_model, d_ff, dropout)
+    position = PositionalEncoding(d_model, dropout)
+    model = EncoderDecoder(
+        Encoder(EncoderLayer(d_model, c(attn), c(ff), dropout), N),
+        Decoder(DecoderLayer(d_model, c(attn), c(attn), c(ff), dropout), N),
+        nn.Sequential(Embeddings(d_model, src_vocab), c(position)),
+        nn.Sequential(Embeddings(d_model, tgt_vocab), c(position)),
+        Generator(d_model, tgt_vocab),
+    )
 
-    def forward(self, x):
-        return self.embedding(x) * (self.embedding_dim ** 0.5)
+    # This was important from their code.
+    # Initialize parameters with Glorot / fan_avg.
+    for p in model.parameters():
+        if p.dim() > 1:
+            nn.init.xavier_uniform_(p)
+    return model
 
 
-class PositionalEmbedding(nn.Module):
-    def __init__(self, d_model, max_len=5000):
-        super(PositionalEmbedding, self).__init__()
-        self.encoding = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * -(torch.log(torch.tensor(10000.0)) / d_model))
-        self.encoding[:, 0::2] = torch.sin(position * div_term)
-        self.encoding[:, 1::2] = torch.cos(position * div_term)
-
-    def forward(self, x):
-        return x + self.encoding[:x.size(0), :]
-
-if __name__ == "__main__":
-    
-    # train_data_loader, valid_data_loader, test_data_loader, en_tokenizer, vi_tokenizer = load_data_loaders()
-    pass
