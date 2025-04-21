@@ -5,10 +5,10 @@ unk_token = "[UNK]"
 pad_token = "[PAD]"
 sos_token = "<sos>"
 eos_token = "<eos>"
-special_tokens = [unk_token, pad_token, sos_token, eos_token]
+mask_token = "[MASK]"
+special_tokens = [unk_token, pad_token, sos_token, eos_token, mask_token]
 
 MAX_LENGTH = 50
-VOCAB_SIZE, OUTPUT_DIM = 0, 0
 EMBEDDING_DIM = 256 
 BATCH_SIZE = 32
 HIDDEN_SIZE = 512            

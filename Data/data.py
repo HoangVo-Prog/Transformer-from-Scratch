@@ -6,10 +6,14 @@ from tokenizers import Tokenizer
 from tokenizers.models import BPE
 from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.trainers import BpeTrainer
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import MAX_LENGTH, BATCH_SIZE, sos_token, eos_token, pad_token, unk_token, special_tokens
 
 
 VOCAB_SIZE, OUTPUT_DIM = 0, 0
+
 
 # Load the dataset from Hugging Face
 def save_data(train_data, valid_data, test_data, filename='dataset.pkl'):
@@ -20,9 +24,10 @@ def save_data(train_data, valid_data, test_data, filename='dataset.pkl'):
 
 # Load the data
 def load_data(filename='dataset.pkl'):
-    with open(filename, 'rb') as f:
+    with open(f"Data\{filename}", 'rb') as f:
         train_data, valid_data, test_data = pickle.load(f)
     return train_data, valid_data, test_data
+
 
 train_data, valid_data, test_data = load_data()
 
@@ -91,6 +96,7 @@ def data_loader():
 
     return train_data_loader, valid_data_loader, test_data_loader, en_tokenizer, vi_tokenizer
 
+
 def save_data_loaders(train_loader, valid_loader, test_loader, en_tokenizer, vi_tokenizer):
     data_dict = {
         'train_loader': train_loader,
@@ -100,12 +106,13 @@ def save_data_loaders(train_loader, valid_loader, test_loader, en_tokenizer, vi_
         'vi_tokenizer': vi_tokenizer
     }
 
-    with open('data_loader.pkl', 'wb') as file:
+    with open('Data/data_loader.pkl', 'wb') as file:
         pickle.dump(data_dict, file)
     print("Data loaders and tokenizers saved successfully.")
 
+
 def load_data_loaders():
-    with open('data_loader.pkl', 'rb') as f:
+    with open(f'Data/data_loader.pkl', 'rb') as f:
         data_dict = pickle.load(f)
         train_loader = data_dict['train_loader']
         valid_loader = data_dict['valid_loader']
@@ -118,11 +125,11 @@ def load_data_loaders():
 
 if __name__ == "__main__":
     # Load the dataset from Hugging Face
-    print("Loading dataset...")
-    ds = load_dataset("thainq107/iwslt2015-en-vi")
+    # print("Loading dataset...")
+    # ds = load_dataset("thainq107/iwslt2015-en-vi")
     
-    train_data, valid_data, test_data = ds["train"], ds["validation"], ds["test"]
-    save_data(train_data, valid_data, test_data)
+    # train_data, valid_data, test_data = ds["train"], ds["validation"], ds["test"]
+    # save_data(train_data, valid_data, test_data)
     
     
     print("Saving dataloaders & tokenizers...")
