@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from data import load_data
+from data import load_data_loaders
 
 
 
@@ -14,9 +14,5 @@ class EmbeddingModel(nn.Module):
         return self.embedding(x) * (self.embedding_dim ** 0.5)
     # Save the data
 
-print("Loading data...")
-train_data, valid_data, test_data = load_data()
-print("Data loaded.")
 
-
-
+# train_data_loader, valid_data_loader, test_data_loader, en_tokenizer, vi_tokenizer = load_data_loaders()
