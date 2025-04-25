@@ -1,2 +1,0 @@
-Example usage:
-    # Assuming trai
