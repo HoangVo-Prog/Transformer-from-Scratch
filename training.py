@@ -209,10 +209,24 @@ def load_checkpoint(model, optimizer, scheduler, filename="checkpoint.pt"):
 def plot_training_progress(train_state, save_path="training_progress.png"):
     plt.figure(figsize=(12, 8))
     
+    # Convert tensors to CPU and then to numpy arrays
+    def to_numpy(tensor):
+        if isinstance(tensor, torch.Tensor):
+            return tensor.cpu().detach().numpy()
+        elif isinstance(tensor, list):
+            # Check if list contains tensors and convert them
+            if len(tensor) > 0 and isinstance(tensor[0], torch.Tensor):
+                return np.array([t.cpu().detach().item() for t in tensor])
+            return np.array(tensor)
+        return tensor
+    
     # Plot training loss
     plt.subplot(2, 1, 1)
-    plt.plot(train_state.train_losses, label='Training Loss')
-    plt.plot(train_state.valid_losses, label='Validation Loss')
+    train_losses = to_numpy(train_state.train_losses)
+    valid_losses = to_numpy(train_state.valid_losses)
+    
+    plt.plot(train_losses, label='Training Loss')
+    plt.plot(valid_losses, label='Validation Loss')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.title('Training and Validation Loss')
@@ -221,7 +235,9 @@ def plot_training_progress(train_state, save_path="training_progress.png"):
     
     # Plot BLEU score
     plt.subplot(2, 1, 2)
-    plt.plot(train_state.bleu_scores, label='BLEU Score', color='green')
+    bleu_scores = to_numpy(train_state.bleu_scores)
+    
+    plt.plot(bleu_scores, label='BLEU Score', color='green')
     plt.xlabel('Epochs')
     plt.ylabel('BLEU Score')
     plt.title('Validation BLEU Score')
