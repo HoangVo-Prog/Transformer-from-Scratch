@@ -334,7 +334,7 @@ def train_worker(
     )
     
     train_state = TrainState()
-    best_bleu = 0.0
+    best_bleu = -1.0  # Initialize best BLEU score
 
     if resume_training:
         loaded_state = load_checkpoint(model, optimizer, lr_scheduler, checkpoint_path)
