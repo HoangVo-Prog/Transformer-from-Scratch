@@ -21,7 +21,7 @@ import wandb
 class Batch:
     """Object for holding a batch of data with mask during training."""
 
-    def __init__(self, src, tgt=None, pad=2):  # 2 = <blank>
+    def __init__(self, src, tgt=None, pad=2):  # pad=2 is the default padding index
         self.src = src
         self.src_mask = (src != pad).unsqueeze(-2)
         if tgt is not None:
@@ -42,8 +42,6 @@ class Batch:
     
 # Training Loop
 class TrainState:
-    """Track number of steps, examples, and tokens processed"""
-
     """Track number of steps, examples, and tokens processed"""
 
     def __init__(self):
@@ -254,6 +252,7 @@ def train_worker(
     best_model_path="best_model.pt",
     use_wandb=True,
     project_name="transformer-translation",
+    entity=None,
     run_name=None
 ):
     print(f"Train worker process using GPU: {device} for training")
@@ -267,6 +266,7 @@ def train_worker(
         
         wandb.init(
             project=project_name,
+            entity=entity,
             name=run_name,
             config={
                 "architecture": "Transformer",
