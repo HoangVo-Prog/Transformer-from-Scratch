@@ -1,9 +1,5 @@
 import torch
 import torch.nn as nn
-from config import RUN_EXAMPLES
-import pandas as pd
-import altair as alt
-import numpy as np
 
 
 class LabelSmoothing(nn.Module):

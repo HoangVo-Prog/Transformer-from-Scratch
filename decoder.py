@@ -5,15 +5,6 @@ from utils import clones
 from utils import LayerNorm, SublayerConnection
 
 
-"""
-    N = 6
-    NOTE: Encoder sublayer + Multi-head attention on the encoder outpus
-    
-    Self-attention: Prevent the model from attending to subsequent positions
-    Masking, ...
-
-"""
-
 class Decoder(nn.Module):
     "Generic N layer decoder with masking."
     def __init__(self, layer, N):
@@ -43,3 +34,4 @@ class DecoderLayer(nn.Module):
         x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, tgt_mask))
         x = self.sublayer[1](x, lambda x: self.src_attn(x, m, m, src_mask))
         return self.sublayer[2](x, self.feed_forward)
+    

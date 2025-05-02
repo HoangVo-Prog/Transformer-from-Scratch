@@ -4,15 +4,6 @@ import torch.nn as nn
 from utils import clones
 from utils import LayerNorm, SublayerConnection
 
-# TODO: Multi-Head Attention 
-# TODO: Positional-Wise fully connected feed forward
-
-"""
-    N = 6
-    NOTE: Each sublayer followed by layer normalization
-=> The output of each sub-layer is LayerNorm(x + Sublayer(x)) // each of sub-layer
-"""
-
 
 class Encoder(nn.Module):
     "Core encoder is a stack of N layers"
@@ -41,7 +32,4 @@ class EncoderLayer(nn.Module):
     def forward(self, x, mask):
         x = self.sublayer[0](x, lambda x:self.self_attn(x, x, x, mask))
         return self.sublayer[1](x, self.feed_forward)
-        
-        
-        
         

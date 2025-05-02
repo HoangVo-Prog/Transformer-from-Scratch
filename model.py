@@ -60,6 +60,7 @@ class PositionalEncoding(nn.Module):
     def forward(self, x):
         x = x + self.pe[:, : x.size(1)].requires_grad_(False)
         return self.dropout(x)
+ 
     
 class EncoderDecoder(nn.Module):
     """

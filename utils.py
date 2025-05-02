@@ -1,4 +1,3 @@
-from config import *
 import copy
 import torch
 import torch.nn as nn 
@@ -7,15 +6,6 @@ import torch.nn as nn
 def clones(module, N):
     "Produce N identical layers."
     return nn.ModuleList([copy.deepcopy(module) for _ in range(N)])
-
-
-def subsequent_mask(size):
-    "Mask out subsequent positions."
-    attn_shape = (1, size, size)
-    subsequent_mask = torch.triu(torch.ones(attn_shape), diagonal=1).type(
-        torch.uint8
-    )
-    return subsequent_mask == 0
 
 
 class LayerNorm(nn.Module):
@@ -47,5 +37,27 @@ class SublayerConnection(nn.Module):
         return x + self.dropout(sublayer(self.norm(x)))
     
     
-if __name__ == "__main__":
-    pass
+def subsequent_mask(size):
+    "Mask out subsequent positions."
+    attn_shape = (1, size, size)
+    subsequent_mask = torch.triu(torch.ones(attn_shape), diagonal=1).type(
+        torch.uint8
+    )
+    return subsequent_mask == 0
+
+
+def rate(step, model_size, factor, warmup):
+    """
+    we have to default the step to 1 for LambdaLR function
+    to avoid zero raising to negative power.
+    """
+    if step == 0:
+        step = 1
+    return factor * (
+        model_size ** (-0.5) * min(step ** (-0.5), step * warmup ** (-1.5))
+    )
+
+
+
+
+

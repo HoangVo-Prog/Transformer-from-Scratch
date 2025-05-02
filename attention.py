@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 from utils import clones
 
+
 """
     There are 3 different ways of using multi-head attention
         - "Encoder-Decoder attention" layers: 
@@ -19,6 +20,7 @@ from utils import clones
             Implement inside of scaled dot-product attention by masking out (setting to -inf in solfmax)
 
 """
+
 
 class ScaledDotProductAttention(nn.Module):
     """
@@ -88,3 +90,4 @@ class MultiHeadAttention(nn.Module):
         
         del query, key, value
         return self.linears[-1](x)
+       
