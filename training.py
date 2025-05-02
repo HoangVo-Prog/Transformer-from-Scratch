@@ -298,7 +298,7 @@ def train_worker(
     
     train_dataloader, valid_dataloader, _, en_tokenizer, vi_tokenizer = cache_or_process()
 
-    pad_idx = en_tokenizer.decode(pad_token).ids
+    pad_idx = en_tokenizer.encode(pad_token).ids
 
     criterion = LabelSmoothing(
         size=vi_tokenizer.get_vocab_size(), padding_idx=pad_idx, smoothing=0.1
