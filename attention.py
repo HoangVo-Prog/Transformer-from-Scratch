@@ -1,4 +1,4 @@
-from config import *
+from config import DEVICE
 import torch
 import torch.nn as nn
 from utils import clones
@@ -33,6 +33,7 @@ class ScaledDotProductAttention(nn.Module):
         "Compute 'Scaled Dot Product Attention'"
         d_k = query.size(-1)
         scores = torch.matmul(query, key.transpose(-2, -1) / (d_k ** 0.5))
+        mask = mask.to(DEVICE)
         if mask is not None:
             scores = scores.masked_fill(mask == 0, -1e9)
             
