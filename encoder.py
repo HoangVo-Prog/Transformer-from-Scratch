@@ -1,4 +1,4 @@
-from config import *
+from config import DEVICE
 import torch
 import torch.nn as nn
 from utils import clones
@@ -15,7 +15,7 @@ class Encoder(nn.Module):
     def forward(self, x, mask):
         "Pass the input (and mask) through each layer in turn."
         for layer in self.layers:
-            x = layer(x, mask)
+            x = layer(x, mask.to(DEVICE)).to(DEVICE)
         return self.norm(x)
     
 

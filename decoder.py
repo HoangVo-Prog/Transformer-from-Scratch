@@ -1,5 +1,4 @@
-from config import *
-import torch
+from config import DEVICE
 import torch.nn as nn
 from utils import clones
 from utils import LayerNorm, SublayerConnection
@@ -14,7 +13,7 @@ class Decoder(nn.Module):
         
     def forward(self, x, memory, src_mask, tgt_mask):
         for layer in self.layers:
-            x = layer(x, memory, src_mask, tgt_mask)
+            x = layer(x, memory, src_mask, tgt_mask).to(DEVICE)
         return self.norm(x)
     
     
