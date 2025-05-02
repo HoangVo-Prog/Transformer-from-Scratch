@@ -172,8 +172,6 @@ def compute_bleu(model, data_iter, en_tokenizer, vi_tokenizer, device, max_len=1
                 src_i = src[i:i+1]
                 src_mask = (src_i != en_tokenizer.encode(pad_token).ids[0]).unsqueeze(-2)
                 pred = greedy_decode(model, src_i, src_mask, max_len, start_symbol)
-                print(pred.shape)
-                print(type(pred))
                 pred_text = vi_tokenizer.decode(pred[0].cpu().numpy())
                 hypotheses.append(pred_text.split())
     
