@@ -252,7 +252,6 @@ def train_worker(
     best_model_path="best_model.pt",
     use_wandb=True,
     project_name="transformer-translation",
-    entity=None,
     run_name=None
 ):
     print(f"Train worker process using GPU: {device} for training")
@@ -266,7 +265,6 @@ def train_worker(
         
         wandb.init(
             project=project_name,
-            entity=entity,
             name=run_name,
             config={
                 "architecture": "Transformer",

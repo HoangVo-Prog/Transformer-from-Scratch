@@ -26,7 +26,6 @@ def parse_args():
     parser.add_argument("--use_wandb", action="store_true", help="Use Weights & Biases for logging")
     parser.add_argument("--project_name", type=str, default="transformer-translation",
                       help="Project name for wandb")
-    parser.add_argument("--entity", type=str, default="Vo Hoang", help="Entity name for wandb")
     parser.add_argument("--run_name", type=str, default="Null", help="Run name for wandb")
     parser.add_argument("--wandb_api_key", type=str, required=True, help="Wandb API key")
     
@@ -77,7 +76,6 @@ def main():
         best_model_path=args.best_model_path, 
         use_wandb=args.use_wandb,
         project_name=args.project_name,
-        entity=args.entity,
         run_name=args.run_name
     )
     
