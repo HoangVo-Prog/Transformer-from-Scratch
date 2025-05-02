@@ -273,7 +273,7 @@ def train_worker(
                 "dataset": "IWSLT2015-en-vi",
                 "learning_rate": config["base_lr"],
                 "warmup_steps": config["warmup"],
-                "epochs": config["num_epochs"],
+                "epochs": config["n_epochs"],
                 "accumulation_steps": config["accum_iter"],
                 "d_model": config["d_model"],
                 "N": config["N"],
@@ -331,9 +331,9 @@ def train_worker(
                 # If resuming training, log that we're continuing from a checkpoint
                 wandb.log({"resumed_from_epoch": train_state.epoch})
                 
-    for epoch in range(train_state.epoch, config["num_epochs"]):
+    for epoch in range(train_state.epoch, config["n_epochs"]):
         train_state.epoch = epoch
-        print(f"\nEpoch {epoch+1}/{config['num_epochs']}")
+        print(f"\nEpoch {epoch+1}/{config['n_epochs']}")
 
         epoch_start_time = time.time()
         
