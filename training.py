@@ -353,7 +353,7 @@ def train_worker(
         # Validation phase
         model.eval()
         valid_loss, _ = run_epoch(
-            (Batch(b[0], b[1], pad_idx) for b in valid_dataloader),
+            (Batch(b["src_ids"], b["trg_ids"], pad_idx) for b in valid_dataloader),
             model,
             SimpleLossCompute(module.generator, criterion),
             DummyOptimizer(),
