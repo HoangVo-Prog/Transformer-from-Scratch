@@ -95,38 +95,7 @@ class Generator(nn.Module):
         
     def forward(self, x):
         return log_softmax(self.proj(x), dim=-1)
-    
-    
-class Transformer(nn.Module):
-    def __init__(self, N, d_model, d_ff, h, dropout):
-        super(Transformer, self).__init__()
-        self.N = N
-        self.d_model = d_model
-        self.d_ff = d_ff
-        self.dropout = dropout
-        
-        self.c = copy.deepcopy
-        self.attn = MultiHeadAttention(h, d_model)
-        self.ff = PositionalWiseFeedForward(d_model, d_ff, dropout)
-        self.position = PositionalEncoding(d_model, dropout)
-         
-        self._initialize_weights()
                     
-    def forward(self, src_vocab, tgt_vocab):
-        model = EncoderDecoder(
-        Encoder(EncoderLayer(self.d_model, self.c(self.attn), self.c(self.ff), self.dropout), self.N),
-        Decoder(DecoderLayer(self.d_model, self.c(self.attn), self.c(self.attn), self.c(self.ff), self.dropout), self.N),
-        nn.Sequential(Embedding(self.d_model, src_vocab), self.c(self.position)),
-        nn.Sequential(Embedding(self.d_model, tgt_vocab), self.c(self.position)),
-        Generator(self.d_model, tgt_vocab),
-        )
-        return model
-    
-    def _initialize_weights(self):
-        for p in self.parameters():
-            if p.dim() > 1:
-                nn.init.xavier_uniform_(p)
-    
 
 def make_model(
     src_vocab, tgt_vocab, N=6, d_model=512, d_ff=2048, h=8, dropout=0.1

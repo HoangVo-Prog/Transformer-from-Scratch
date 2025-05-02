@@ -1,7 +1,7 @@
 from utils import subsequent_mask
 from lr_scheduler import rate
 from regularization import LabelSmoothing
-from model import Transformer, make_model
+from model import make_model
 from Data.data import cache_or_process
 from config import pad_token
 from helper_function import DummyOptimizer, DummyScheduler
@@ -189,8 +189,7 @@ def save_checkpoint(model, optimizer, scheduler, train_state, filename="checkpoi
     }
     torch.save(checkpoint, filename)
     print(f"Checkpoint saved to {filename}")
-    
-    
+      
     
 def load_checkpoint(model, optimizer, scheduler, filename="checkpoint.pt"):
     if not os.path.exists(filename):
@@ -285,8 +284,11 @@ def train_worker(
         # Log code files (optional)
         wandb.run.log_code(".", include_fn=lambda path: path.endswith(".py"))
 
+    train_dataloader, valid_dataloader, _, en_tokenizer, vi_tokenizer = cache_or_process()
 
-    model = Transformer(
+    model = make_model(
+        en_tokenizer.get_vocab_size(),
+        vi_tokenizer.get_vocab_size(),  
         N=config["N"], 
         d_model=config["d_model"], 
         d_ff=config["d_ff"], 
@@ -296,7 +298,6 @@ def train_worker(
     model.to(device)
     module = model
     
-    train_dataloader, valid_dataloader, _, en_tokenizer, vi_tokenizer = cache_or_process()
 
     pad_idx = en_tokenizer.encode(pad_token).ids
 
@@ -315,8 +316,7 @@ def train_worker(
             step, config["d_model"], factor=1, warmup=config["warmup"]
         ),
     )
-    train_state = TrainState()
-
+    
     train_state = TrainState()
     best_bleu = 0.0
 
@@ -338,7 +338,7 @@ def train_worker(
         # Training phase
         model.train()
         train_loss, train_state = run_epoch(
-            (Batch(b[0], b[1], pad_idx) for b in train_dataloader),
+            (Batch(b["src_ids"], b["trg_ids"], pad_idx) for b in train_dataloader),
             model,
             SimpleLossCompute(module.generator, criterion),
             optimizer,
