@@ -160,8 +160,8 @@ def compute_bleu(model, data_iter, en_tokenizer, vi_tokenizer, device, max_len=1
     
     with torch.no_grad():
         for batch in data_iter:
-            src = batch[0].to(device)
-            tgt = batch[1].to(device)
+            src = batch["src_ids"].to(device)
+            tgt = batch["trg_ids"].to(device)
             
             # Get reference translations
             tgt_texts = [vi_tokenizer.decode(ids) for ids in tgt.cpu().numpy()]
