@@ -28,7 +28,7 @@ def parse_args():
                       help="Project name for wandb")
     parser.add_argument("--entity", type=str, default="Vo Hoang", help="Entity name for wandb")
     parser.add_argument("--run_name", type=str, default="Null", help="Run name for wandb")
-    parser.add_argument("--wandb_api_key", type=str, default="f0e294d0daf24b71c0d0b5a407370a35b31b17cb", help="Wandb API key")
+    parser.add_argument("--wandb_api_key", type=str, required=True, help="Wandb API key")
     
     return parser.parse_args()
 
