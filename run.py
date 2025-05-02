@@ -10,8 +10,8 @@ import wandb
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a Transformer model")
-    parser.add_argument("--checkpoint_path", type=str, help="Path to current model", default="")
-    parser.add_argument("--best_model_path", type=str, help="Path to best model", default="")
+    parser.add_argument("--checkpoint_path", type=str, help="Path to current model", default="checkpoint.pt")
+    parser.add_argument("--best_model_path", type=str, help="Path to best model", default="best_model.pt")
     parser.add_argument("--resume_training", type=bool, help="Define whether train from scratch or not", default=False)
     parser.add_argument("--n_epochs", type=int, required=True, help="Path to number of epochs")
     parser.add_argument("--base_lr", type=float, help="Define learning rate", default=1e-4)
