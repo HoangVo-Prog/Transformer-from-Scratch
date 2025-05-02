@@ -3,7 +3,7 @@ from lr_scheduler import rate
 from regularization import LabelSmoothing
 from model import make_model
 from Data.data import cache_or_process
-from config import pad_token
+from config import pad_token, sos_token, eos_token
 from helper_function import DummyOptimizer, DummyScheduler
 
 # Other imports
@@ -156,7 +156,7 @@ def compute_bleu(model, data_iter, en_tokenizer, vi_tokenizer, device, max_len=1
     model.eval()
     references = []
     hypotheses = []
-    start_symbol = vi_tokenizer.token_to_id("[BOS]")
+    start_symbol = vi_tokenizer.token_to_id(sos_token)
     
     with torch.no_grad():
         for batch in data_iter:
