@@ -25,6 +25,7 @@ class Batch:
         self.src = src
         print(type(src), src.shape)
         print(type(tgt), tgt.shape)
+        print(type(pad), pad)
         self.src_mask = (src != pad).unsqueeze(-2)
         if tgt is not None:
             self.tgt = tgt[:, :-1]
