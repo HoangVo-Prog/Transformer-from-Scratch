@@ -23,6 +23,8 @@ class Batch:
 
     def __init__(self, src, tgt=None, pad=2):  # pad=2 is the default padding index
         self.src = src
+        print(type(src), src.shape)
+        print(type(tgt), tgt.shape)
         self.src_mask = (src != pad).unsqueeze(-2)
         if tgt is not None:
             self.tgt = tgt[:, :-1]
