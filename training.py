@@ -337,7 +337,7 @@ def train_worker(
     best_bleu = -1.0  # Initialize best BLEU score
 
     if resume_training:
-        loaded_state = load_checkpoint(model, optimizer, lr_scheduler, checkpoint_path)
+        loaded_state = load_checkpoint(model, optimizer, lr_scheduler, best_model_path)
         if loaded_state:
             train_state = loaded_state
             print(f"Resuming from epoch {train_state.epoch}")
