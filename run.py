@@ -69,7 +69,7 @@ def download_best_model_from_wandb(args):
         run = api.run(args.wandb_run_path)
         
         # Get the best model artifact from the run
-        artifact = api.artifact(args.artifact_name)
+        artifact = api.artifact(f"{args.wandb_run_path}/{args.artifact_name}")
         artifact_dir = artifact.download()
         
         # Find the model file in the artifact directory
@@ -90,7 +90,7 @@ def download_best_model_from_wandb(args):
     except Exception as e:
         print(f"Error downloading model from W&B: {e}")
         return False
-
+    
 def main():
     args = parse_args()
     
