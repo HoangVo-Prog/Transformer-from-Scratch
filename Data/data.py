@@ -8,7 +8,8 @@ from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.trainers import BpeTrainer
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import MAX_LENGTH, BATCH_SIZE, sos_token, eos_token, pad_token, unk_token, special_tokens
+from config import MAX_LENGTH, sos_token, eos_token, pad_token, unk_token, special_tokens
+from run import BATCH_SIZE
 
 # ------------------------
 # Collate Function

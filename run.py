@@ -9,6 +9,7 @@ import os
 import wandb
 import shutil
 
+BATCH_SIZE = 32
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a Transformer model")
@@ -16,6 +17,7 @@ def parse_args():
     parser.add_argument("--best_model_path", type=str, help="Path to best model", default="best_model.pt")
     parser.add_argument("--resume_training", type=bool, help="Define whether train from scratch or not", default=False)
     parser.add_argument("--n_epochs", type=int, required=True, help="Path to number of epochs")
+    parser.add_argument("--batch_size", type=int, help="Define batch size", default=32)
     parser.add_argument("--base_lr", type=float, help="Define learning rate", default=1e-4)
     parser.add_argument("--warmup", type=int, help="Define warmup step", default=4000)
     parser.add_argument("--accum_iter", type=int, help="Define gradient accumulation steps", default=4)
@@ -128,6 +130,10 @@ def main():
     args = parse_args()
     
     set_seed(args.seed)
+    
+    global BATCH_SIZE
+    BATCH_SIZE = args.batch_size
+    print(f"Batch size set to {BATCH_SIZE}")
     
     wandb.login(key=args.wandb_api_key)
     print("Wandb login successful!")
