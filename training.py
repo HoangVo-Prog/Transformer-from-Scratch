@@ -345,9 +345,10 @@ def train_worker(
                 # If resuming training, log that we're continuing from a checkpoint
                 wandb.log({"resumed_from_epoch": train_state.epoch})
                 
-    for epoch in range(train_state.epoch, train_state.epoch+config["n_epochs"]):
+    end_epoch = train_state.epoch + config["n_epochs"]
+    for epoch in range(train_state.epoch, end_epoch):
         train_state.epoch = epoch
-        print(f"\nEpoch {epoch+1}/{config['n_epochs']}")
+        print(f"\nEpoch {epoch+1}/{end_epoch}")
 
         epoch_start_time = time.time()
         
