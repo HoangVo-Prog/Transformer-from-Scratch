@@ -9,7 +9,6 @@ import os
 import wandb
 import shutil
 
-BATCH_SIZE = 32
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a Transformer model")
@@ -131,10 +130,6 @@ def main():
     
     set_seed(args.seed)
     
-    global BATCH_SIZE
-    BATCH_SIZE = args.batch_size
-    print(f"Batch size set to {BATCH_SIZE}")
-    
     wandb.login(key=args.wandb_api_key)
     print("Wandb login successful!")
     
@@ -147,7 +142,8 @@ def main():
         "d_model": args.d_model,
         "d_ff": args.d_ff,
         "h": args.h,
-        "dropout": args.dropout
+        "dropout": args.dropout, 
+        "batch_size": args.batch_size,
     }
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

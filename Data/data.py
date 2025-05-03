@@ -9,7 +9,6 @@ from tokenizers.trainers import BpeTrainer
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import MAX_LENGTH, sos_token, eos_token, pad_token, unk_token, special_tokens
-from run import BATCH_SIZE
 
 # ------------------------
 # Collate Function
@@ -83,7 +82,7 @@ def load_tokenizers(path="Data/tokenizers.pkl"):
 # ------------------------
 # Central Caching Loader
 # ------------------------
-def cache_or_process():
+def cache_or_process(BATCH_SIZE=32):
     cache_path = "Data/tokenized"
     tokenizer_path = "Data/tokenizers.pkl"
 

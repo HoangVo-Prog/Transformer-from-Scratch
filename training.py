@@ -300,7 +300,7 @@ def train_worker(
         # Log code files (optional)
         wandb.run.log_code(".", include_fn=lambda path: path.endswith(".py"))
 
-    train_dataloader, valid_dataloader, _, en_tokenizer, vi_tokenizer = cache_or_process()
+    train_dataloader, valid_dataloader, _, en_tokenizer, vi_tokenizer = cache_or_process(config["batch_size"])  
 
     model = make_model(
         en_tokenizer.get_vocab_size(),
