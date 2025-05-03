@@ -75,11 +75,38 @@ def download_best_model_from_wandb(args):
             
         entity, project, run_id = path_parts
         
-        # Properly format the artifact name with the entity/project
-        artifact_path = f"{entity}/{project}/{args.artifact_name}"
-        print(f"Attempting to download artifact: {artifact_path}")
+        # Get a list of artifacts logged to this run
+        print(f"Fetching artifacts from run: {args.wandb_run_path}")
+        run_artifacts = run.logged_artifacts()
+        if not run_artifacts:
+            print("No artifacts found in this run. Available runs in project:")
+            runs = api.runs(f"{entity}/{project}")
+            for r in runs:
+                print(f"Run ID: {r.id}, Name: {r.name}")
+            raise ValueError(f"No artifacts found in run {run_id}")
         
-        artifact = api.artifact(artifact_path)
+        # Print available artifacts
+        print("Available artifacts in this run:")
+        for art in run_artifacts:
+            print(f"- {art.name}:{art.version}")
+        
+        # Use the first model artifact found or the specified one if it exists
+        model_artifacts = [art for art in run_artifacts if "model" in art.name.lower()]
+        
+        if not model_artifacts:
+            raise ValueError(f"No model artifacts found in run {run_id}")
+        
+        # Use specified artifact if it exists, otherwise use the first model artifact
+        artifact_name = args.artifact_name.split(':')[0]  # Remove version if specified
+        matching_artifacts = [art for art in model_artifacts if artifact_name in art.name]
+        
+        if matching_artifacts:
+            artifact = matching_artifacts[0]
+        else:
+            print(f"Specified artifact '{args.artifact_name}' not found. Using '{model_artifacts[0].name}:{model_artifacts[0].version}' instead.")
+            artifact = model_artifacts[0]
+            
+        print(f"Downloading artifact: {artifact.name}:{artifact.version}")
         artifact_dir = artifact.download()
         
         # Find the model file in the artifact directory
@@ -100,7 +127,6 @@ def download_best_model_from_wandb(args):
     except Exception as e:
         print(f"Error downloading model from W&B: {e}")
         return False
-    
 def main():
     args = parse_args()
     
