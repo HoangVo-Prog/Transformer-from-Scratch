@@ -7,6 +7,8 @@ import numpy as np
 import random
 import os
 import wandb
+import shutil
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Train a Transformer model")
@@ -28,6 +30,12 @@ def parse_args():
                       help="Project name for wandb")
     parser.add_argument("--run_name", type=str, default="Null", help="Run name for wandb")
     parser.add_argument("--wandb_api_key", type=str, required=True, help="Wandb API key")
+    # New arguments for loading best model from W&B
+    parser.add_argument("--load_best_model", action="store_true", help="Load the best model from W&B")
+    parser.add_argument("--wandb_run_path", type=str, default=None, 
+                        help="W&B run path in format: <username>/<project-name>/<run-id>")
+    parser.add_argument("--artifact_name", type=str, default="best_model:latest",
+                        help="Name of the artifact to load")
     
     return parser.parse_args()
 
@@ -43,7 +51,45 @@ def set_seed(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-
+def download_best_model_from_wandb(args):
+    """
+    Download the best model from W&B artifacts and save it to best_model_path
+    
+    Args:
+        args: Command line arguments
+        
+    Returns:
+        success: Boolean indicating whether the download was successful
+    """
+    try:
+        # Initialize W&B API
+        api = wandb.Api()
+        
+        # Get the specified run
+        run = api.run(args.wandb_run_path)
+        
+        # Get the best model artifact from the run
+        artifact = run.use_artifact(args.artifact_name)
+        artifact_dir = artifact.download()
+        
+        # Find the model file in the artifact directory
+        model_files = [f for f in os.listdir(artifact_dir) if f.endswith('.pt')]
+        if not model_files:
+            raise ValueError(f"No model files found in artifact directory {artifact_dir}")
+        
+        # Path to the first model file found
+        source_path = os.path.join(artifact_dir, model_files[0])
+        print(f"Found model at {source_path}")
+        
+        # Copy the model file to the best_model_path
+        shutil.copy(source_path, args.best_model_path)
+        print(f"Successfully saved best model from W&B to {args.best_model_path}")
+        
+        return True
+    
+    except Exception as e:
+        print(f"Error downloading model from W&B: {e}")
+        return False
 
 def main():
     args = parse_args()
@@ -67,6 +113,16 @@ def main():
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
+    # Download best model from W&B if requested
+    if args.load_best_model and args.wandb_run_path:
+        print(f"Downloading best model from W&B run: {args.wandb_run_path}")
+        success = download_best_model_from_wandb(args)
+        
+        if success:
+            print(f"Successfully downloaded best model from W&B to {args.best_model_path}")
+        else:
+            print("Failed to download model from W&B")
+    
     # Train model
     model, train_state = train_worker(
         device=device,
@@ -81,7 +137,6 @@ def main():
     
     print("Training completed!")
     
-
 
 if __name__ == "__main__":
     main()
