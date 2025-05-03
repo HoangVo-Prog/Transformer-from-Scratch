@@ -50,7 +50,6 @@ def set_seed(seed):
     # Ensures that CUDA selects deterministic algorithms (if available)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-
 def download_best_model_from_wandb(args):
     """
     Download the best model from W&B artifacts and save it to best_model_path
@@ -69,7 +68,18 @@ def download_best_model_from_wandb(args):
         run = api.run(args.wandb_run_path)
         
         # Get the best model artifact from the run
-        artifact = api.artifact(f"{args.wandb_run_path}/{args.artifact_name}")
+        # Extract the entity and project from run path
+        path_parts = args.wandb_run_path.split('/')
+        if len(path_parts) != 3:
+            raise ValueError(f"Invalid wandb_run_path format: {args.wandb_run_path}. Expected format: 'entity/project/run_id'")
+            
+        entity, project, run_id = path_parts
+        
+        # Properly format the artifact name with the entity/project
+        artifact_path = f"{entity}/{project}/{args.artifact_name}"
+        print(f"Attempting to download artifact: {artifact_path}")
+        
+        artifact = api.artifact(artifact_path)
         artifact_dir = artifact.download()
         
         # Find the model file in the artifact directory
