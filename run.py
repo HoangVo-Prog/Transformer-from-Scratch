@@ -50,6 +50,7 @@ def set_seed(seed):
     # Ensures that CUDA selects deterministic algorithms (if available)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+    
 def download_best_model_from_wandb(args):
     """
     Download the best model from W&B artifacts and save it to best_model_path
@@ -64,39 +65,34 @@ def download_best_model_from_wandb(args):
         # Initialize W&B API
         api = wandb.Api()
         
+        # Validate and parse run path
+        path_parts = args.wandb_run_path.split('/')
+        if len(path_parts) != 3:
+            raise ValueError(f"Invalid wandb_run_path format: {args.wandb_run_path}. Expected: 'entity/project/run_id'")
+        entity, project, run_id = path_parts
+        
         # Get the specified run
         run = api.run(args.wandb_run_path)
         
-        # Get the best model artifact from the run
-        # Extract the entity and project from run path
-        path_parts = args.wandb_run_path.split('/')
-        if len(path_parts) != 3:
-            raise ValueError(f"Invalid wandb_run_path format: {args.wandb_run_path}. Expected format: 'entity/project/run_id'")
-            
-        entity, project, run_id = path_parts
-        
-        # Get a list of artifacts logged to this run
+        # Get and display available artifacts
         print(f"Fetching artifacts from run: {args.wandb_run_path}")
         run_artifacts = run.logged_artifacts()
-        if not run_artifacts:
-            print("No artifacts found in this run. Available runs in project:")
-            runs = api.runs(f"{entity}/{project}")
-            for r in runs:
-                print(f"Run ID: {r.id}, Name: {r.name}")
-            raise ValueError(f"No artifacts found in run {run_id}")
         
-        # Print available artifacts
+        if not run_artifacts:
+            print(f"No artifacts found in run {run_id}")
+            return False
+            
         print("Available artifacts in this run:")
         for art in run_artifacts:
             print(f"- {art.name}:{art.version}")
         
-        # Use the first model artifact found or the specified one if it exists
+        # Find model artifacts and select the appropriate one
         model_artifacts = [art for art in run_artifacts if "model" in art.name.lower()]
-        
         if not model_artifacts:
-            raise ValueError(f"No model artifacts found in run {run_id}")
+            print(f"No model artifacts found in run {run_id}")
+            return False
         
-        # Use specified artifact if it exists, otherwise use the first model artifact
+        # Try to find the requested artifact or use the first model artifact
         artifact_name = args.artifact_name.split(':')[0]  # Remove version if specified
         matching_artifacts = [art for art in model_artifacts if artifact_name in art.name]
         
@@ -105,28 +101,29 @@ def download_best_model_from_wandb(args):
         else:
             print(f"Specified artifact '{args.artifact_name}' not found. Using '{model_artifacts[0].name}:{model_artifacts[0].version}' instead.")
             artifact = model_artifacts[0]
-            
+        
+        # Download the artifact
         print(f"Downloading artifact: {artifact.name}:{artifact.version}")
         artifact_dir = artifact.download()
         
-        # Find the model file in the artifact directory
+        # Find and copy the model file
         model_files = [f for f in os.listdir(artifact_dir) if f.endswith('.pt')]
         if not model_files:
-            raise ValueError(f"No model files found in artifact directory {artifact_dir}")
+            print(f"No model files (.pt) found in artifact directory {artifact_dir}")
+            return False
         
-        # Path to the first model file found
         source_path = os.path.join(artifact_dir, model_files[0])
         print(f"Found model at {source_path}")
         
-        # Copy the model file to the best_model_path
         shutil.copy(source_path, args.best_model_path)
         print(f"Successfully saved best model from W&B to {args.best_model_path}")
         
         return True
-    
+        
     except Exception as e:
         print(f"Error downloading model from W&B: {e}")
         return False
+
 def main():
     args = parse_args()
     
