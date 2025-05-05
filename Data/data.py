@@ -43,20 +43,25 @@ def bytepair_tokenize(raw_data):
 
 def tokenize(data, tokenizer):
     encoding = tokenizer.encode(data)
-    return [tokenizer.token_to_id(sos_token)] + encoding.ids + [tokenizer.token_to_id(eos_token)]
+    return [tokenizer.token_to_id(sos_token)] + encoding.ids
 
 def tokenize_and_numericalize(data, src_tokenizer, trg_tokenizer, max_length=MAX_LENGTH):
-    def pad_or_truncate(ids, pad_index):
-        return ids[:max_length] if len(ids) > max_length else ids + [pad_index] * (max_length - len(ids))
+    def pad_or_truncate(ids, pad_index, eos_index):
+        if len(ids) >= max_length:
+            return ids[:max_length-1] + [eos_index]
+        else:
+            return ids + [pad_index] * (max_length - len(ids) - 1) + [eos_index]
 
     src_ids = tokenize(data['en'], src_tokenizer)
     trg_ids = tokenize(data['vi'], trg_tokenizer)
     src_pad_index = src_tokenizer.token_to_id(pad_token)
     trg_pad_index = trg_tokenizer.token_to_id(pad_token)
+    src_eos_index = src_tokenizer.token_to_id(eos_token)
+    trg_eos_index = trg_tokenizer.token_to_id(eos_token)
 
     return {
-        'src_ids': torch.tensor(pad_or_truncate(src_ids, src_pad_index)),
-        'trg_ids': torch.tensor(pad_or_truncate(trg_ids, trg_pad_index)),
+        'src_ids': torch.tensor(pad_or_truncate(src_ids, src_pad_index, src_eos_index)),
+        'trg_ids': torch.tensor(pad_or_truncate(trg_ids, trg_pad_index, trg_eos_index)),
     }
 
 # ------------------------
