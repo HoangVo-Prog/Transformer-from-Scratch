@@ -115,6 +115,31 @@ def cache_or_process(BATCH_SIZE=32):
 
     return train_loader, valid_loader, test_loader, en_tokenizer, vi_tokenizer
 
+
+def debug_token_sequence(tokenizer, ids):
+    """Convert token IDs back to readable tokens for debugging"""
+    token_map = {
+        tokenizer.token_to_id(sos_token): sos_token,
+        tokenizer.token_to_id(eos_token): eos_token,
+        tokenizer.token_to_id(pad_token): pad_token,
+        tokenizer.token_to_id(unk_token): unk_token
+    }
+    
+    # Convert IDs to readable tokens
+    readable_tokens = []
+    for id in ids:
+        if id in token_map:
+            readable_tokens.append(token_map[id])
+        else:
+            # For regular tokens, get them from the tokenizer vocabulary if possible
+            try:
+                readable_tokens.append(tokenizer.id_to_token(id))
+            except:
+                readable_tokens.append(f"ID_{id}")
+    
+    return readable_tokens
+
+
 def main():
     print("🚀 Initializing data pipeline...")
     train_loader, valid_loader, test_loader, en_tokenizer, vi_tokenizer = cache_or_process()
@@ -124,11 +149,36 @@ def main():
     print(f"  ├─ Valid batches: {len(valid_loader)}")
     print(f"  └─ Test batches : {len(test_loader)}")
 
-    # Example: Peek at a single batch
+    # Get a sample batch
     sample = next(iter(train_loader))
     print("🔍 Sample batch:")
     print(f"  src_ids shape: {sample['src_ids'].shape}")
     print(f"  trg_ids shape: {sample['trg_ids'].shape}")
-
+    
+    # Debug first example in batch
+    print("\n🔍 Examining first example in batch:")
+    src_tokens = debug_token_sequence(en_tokenizer, sample['src_ids'][0])
+    trg_tokens = debug_token_sequence(vi_tokenizer, sample['trg_ids'][0])
+    
+    print("Source sequence structure:")
+    print(src_tokens[:5], "...", src_tokens[-5:])
+    
+    print("Target sequence structure:")
+    print(trg_tokens[:5], "...", trg_tokens[-5:])
+    
+    # Count special tokens
+    src_sos_count = src_tokens.count(sos_token)
+    src_eos_count = src_tokens.count(eos_token)
+    src_pad_count = src_tokens.count(pad_token)
+    
+    trg_sos_count = trg_tokens.count(sos_token)
+    trg_eos_count = trg_tokens.count(eos_token)
+    trg_pad_count = trg_tokens.count(pad_token)
+    
+    print("\nSpecial token counts:")
+    print(f"Source: SOS={src_sos_count}, EOS={src_eos_count}, PAD={src_pad_count}")
+    print(f"Target: SOS={trg_sos_count}, EOS={trg_eos_count}, PAD={trg_pad_count}")
+    
+    
 if __name__ == "__main__":
     main()
