@@ -173,12 +173,12 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-# bpe files
-bpe/tokenized/
-bpe/tokenized/*
+# data files
+data/tokenized/
+data/tokenized/*
 
 # Ignore tokenizer files if saved as .pkl
-bpe/tokenizers.pkl
+data/tokenizers.pkl
 
 # Ignore any pickle-based dataset files
 Data/*.pkl

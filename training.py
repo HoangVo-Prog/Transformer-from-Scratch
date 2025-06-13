@@ -2,7 +2,7 @@ from utils import subsequent_mask
 from lr_scheduler import rate
 from regularization import LabelSmoothing
 from model import make_model
-from bpe.data import cache_or_process
+from data.script import cache_or_process
 from config import pad_token, sos_token, eos_token
 from helper_function import DummyOptimizer, DummyScheduler
 

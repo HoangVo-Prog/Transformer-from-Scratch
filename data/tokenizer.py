@@ -1,19 +1,14 @@
-import sys
-import os
-import pickle
-import torch
-
-from datasets import load_dataset, load_from_disk, DatasetDict
 from transformers import AutoTokenizer
 from tokenizers import Tokenizer
 from tokenizers.models import BPE
 from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.trainers import BpeTrainer
 
+import sys
+import os
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import MAX_LENGTH, sos_token, eos_token, pad_token, unk_token, special_tokens
-
-
+from config import unk_token, special_tokens
 
 
 def bytepair_tokenize(raw_data):
@@ -29,7 +24,7 @@ def bytepair_tokenize(raw_data):
 
     return en_tokenizer, vi_tokenizer
 
-def vi_en_pretrained_tokenizer(raw_data):
+def vi_en_pretrained_tokenizer():
     tokenizer = AutoTokenizer.from_pretrained("vinai/vinai-translate-en2vi")
     return tokenizer
 
