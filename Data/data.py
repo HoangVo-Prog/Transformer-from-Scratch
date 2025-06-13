@@ -7,8 +7,12 @@ from tokenizers.models import BPE
 from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.trainers import BpeTrainer
 import sys
+import shutil
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import MAX_LENGTH, sos_token, eos_token, pad_token, unk_token, special_tokens
+
+os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
 
 # ------------------------
 # Collate Function
@@ -87,16 +91,18 @@ def load_tokenizers(path="Data/tokenizers.pkl"):
 # ------------------------
 # Central Caching Loader
 # ------------------------
-def cache_or_process(BATCH_SIZE=32):
+def cache_or_process(BATCH_SIZE=32, FORCE_DOWNLOAD=False):
     cache_path = "Data/tokenized"
     tokenizer_path = "Data/tokenizers.pkl"
 
-    if os.path.exists(cache_path) and os.path.exists(tokenizer_path):
-        print("✅ Loading cached preprocessed datasets and tokenizers...")
-        datasets = load_from_disk(cache_path)
-        en_tokenizer, vi_tokenizer = load_tokenizers(tokenizer_path)
-    else:
+    if FORCE_DOWNLOAD or not os.path.exists(cache_path) or not os.path.exists(tokenizer_path):
         print("🔄 Preprocessing and tokenizing datasets...")
+        for i in [cache_path, tokenizer_path]:
+            if os.path.isfile(i):
+                os.remove(i)
+            elif os.path.isdir(i):
+                shutil.rmtree(i)
+
         raw = load_dataset("thainq107/iwslt2015-en-vi")
         train_raw, valid_raw, test_raw = raw["train"], raw["validation"], raw["test"]
         en_tokenizer, vi_tokenizer = bytepair_tokenize(train_raw)
@@ -108,6 +114,10 @@ def cache_or_process(BATCH_SIZE=32):
         save_preprocessed_datasets(train, valid, test, cache_path)
         save_tokenizers(en_tokenizer, vi_tokenizer, tokenizer_path)
         datasets = {"train": train, "validation": valid, "test": test}
+    else:
+        print("✅ Loading cached preprocessed datasets and tokenizers...")
+        datasets = load_from_disk(cache_path)
+        en_tokenizer, vi_tokenizer = load_tokenizers(tokenizer_path)
 
     train_loader = get_data_loader(datasets["train"], BATCH_SIZE, shuffle=True)
     valid_loader = get_data_loader(datasets["validation"], BATCH_SIZE)
@@ -142,7 +152,7 @@ def debug_token_sequence(tokenizer, ids):
 
 def main():
     print("🚀 Initializing data pipeline...")
-    train_loader, valid_loader, test_loader, en_tokenizer, vi_tokenizer = cache_or_process()
+    train_loader, valid_loader, test_loader, en_tokenizer, vi_tokenizer = cache_or_process(FORCE_DOWNLOAD=True)
 
     print("✅ DataLoaders ready:")
     print(f"  ├─ Train batches: {len(train_loader)}")
@@ -161,10 +171,12 @@ def main():
     trg_tokens = debug_token_sequence(vi_tokenizer, sample['trg_ids'][0])
     
     print("Source sequence structure:")
-    print(src_tokens[:5], "...", src_tokens[-5:])
+    print(src_tokens)
+    print(sample['src_ids'][0])
     
     print("Target sequence structure:")
-    print(trg_tokens[:5], "...", trg_tokens[-5:])
+    print(trg_tokens)
+    print(sample['trg_ids'][0])
     
     # Count special tokens
     src_sos_count = src_tokens.count(sos_token)
