@@ -519,11 +519,6 @@ def cache_or_process_bpe(tokenizer_path=None, output_path=None, batch_size=32, f
     return train_loader, valid_loader, test_loader, tokenizer['en'], tokenizer['vi']
 
 
-def cache_or_process(tokenizer_path=None, output_path=None, batch_size=32, force_download=False):
-    """Default backward compatibility function"""
-    return cache_or_process_pretrained('vinai', tokenizer_path, output_path, batch_size, force_download)
-
-
 # ------------------------
 # Special BPE Processor for Custom File Paths
 # ------------------------
