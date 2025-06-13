@@ -4,6 +4,7 @@ import pickle
 import torch
 
 from datasets import load_dataset, load_from_disk, DatasetDict
+from transformers import AutoTokenizer
 from tokenizers import Tokenizer
 from tokenizers.models import BPE
 from tokenizers.pre_tokenizers import Whitespace
@@ -27,3 +28,8 @@ def bytepair_tokenize(raw_data):
     vi_tokenizer.train_from_iterator(raw_data["vi"], trainer=vi_trainer)
 
     return en_tokenizer, vi_tokenizer
+
+def vi_en_pretrained_tokenizer(raw_data):
+    tokenizer = AutoTokenizer.from_pretrained("vinai/vinai-translate-en2vi")
+    return tokenizer
+

@@ -2,15 +2,13 @@ import os
 import pickle
 import torch
 from datasets import load_dataset, load_from_disk, DatasetDict
-from tokenizers import Tokenizer
-from tokenizers.models import BPE
-from tokenizers.pre_tokenizers import Whitespace
-from tokenizers.trainers import BpeTrainer
 import sys
 import shutil
 
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import MAX_LENGTH, sos_token, eos_token, pad_token, unk_token, special_tokens
+from config import MAX_LENGTH, sos_token, eos_token, pad_token, unk_token
+from tokenizer import bytepair_tokenize
 
 os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
 
@@ -32,18 +30,6 @@ def collate_fn(batch):
 # ------------------------
 # Tokenization Utilities
 # ------------------------
-def bytepair_tokenize(raw_data):
-    en_tokenizer = Tokenizer(BPE(unk_token=unk_token))
-    en_tokenizer.pre_tokenizer = Whitespace()
-    en_trainer = BpeTrainer(special_tokens=special_tokens)
-    en_tokenizer.train_from_iterator(raw_data["en"], trainer=en_trainer)
-
-    vi_tokenizer = Tokenizer(BPE(unk_token=unk_token))
-    vi_tokenizer.pre_tokenizer = Whitespace()
-    vi_trainer = BpeTrainer(special_tokens=special_tokens)
-    vi_tokenizer.train_from_iterator(raw_data["vi"], trainer=vi_trainer)
-
-    return en_tokenizer, vi_tokenizer
 
 def tokenize(data, tokenizer):
     encoding = tokenizer.encode(data)
@@ -77,14 +63,14 @@ def get_data_loader(dataset, batch_size, shuffle=False):
 # ------------------------
 # Save/Load Dataset State
 # ------------------------
-def save_preprocessed_datasets(train, valid, test, path="Data/tokenized"):
+def save_preprocessed_datasets(train, valid, test, path="bpe/tokenized"):
     DatasetDict({"train": train, "validation": valid, "test": test}).save_to_disk(path)
 
-def save_tokenizers(en_tokenizer, vi_tokenizer, path="Data/tokenizers.pkl"):
+def save_tokenizers(en_tokenizer, vi_tokenizer, path="bpe/tokenizers.pkl"):
     with open(path, 'wb') as f:
         pickle.dump((en_tokenizer, vi_tokenizer), f)
 
-def load_tokenizers(path="Data/tokenizers.pkl"):
+def load_tokenizers(path="bpe/tokenizers.pkl"):
     with open(path, 'rb') as f:
         return pickle.load(f)
 
@@ -92,8 +78,8 @@ def load_tokenizers(path="Data/tokenizers.pkl"):
 # Central Caching Loader
 # ------------------------
 def cache_or_process(BATCH_SIZE=32, FORCE_DOWNLOAD=False):
-    cache_path = "Data/tokenized"
-    tokenizer_path = "Data/tokenizers.pkl"
+    cache_path = "bpe/tokenized"
+    tokenizer_path = "bpe/tokenizers.pkl"
 
     if FORCE_DOWNLOAD or not os.path.exists(cache_path) or not os.path.exists(tokenizer_path):
         print("🔄 Preprocessing and tokenizing datasets...")
